@@ -30,6 +30,7 @@ PLOT_F_MEAN_FLAME = 1
 
 factor_figsize = 1.25
 FIGSIZE = factor_figsize * 4, factor_figsize * 3
+EXT_LIST = ['png']
 
 # Choosing cases to plot and the legend {name: dir}
 CASE_DIR = {
@@ -57,7 +58,8 @@ if __name__ == "__main__":
             data[my_case]['avbp_mmm'] = df_mmm
 
         if PLOT_FLAME_POSITION or PLOT_FLAME_SPEED:
-            track = sorted(glob.glob(os.path.join(my_dir, 'avbp_track_condition*.h5')))
+            track = sorted(glob.glob(os.path.join(
+                my_dir, 'avbp_track_condition*.h5')))
             for _tracker in track:
                 file = os.path.split(_tracker)[-1]
                 file = file.replace(".h5", "")
@@ -174,7 +176,7 @@ if __name__ == "__main__":
             ax_overp.plot(df['t'], df.overpressure_mbar,
                           ls=_ls,
                           color=_color,
-                          marker=_marker, 
+                          marker=_marker,
                           markevery=0.05,
                           label=my_case)
 
@@ -186,7 +188,7 @@ if __name__ == "__main__":
                                ls=linestyle,
                                color=_color,
                                marker=_marker,
-                            #    markevery=0.05,
+                               #    markevery=0.05,
                                label=my_case)
             # cases from Omar
             except KeyError:
@@ -196,7 +198,7 @@ if __name__ == "__main__":
                                ls=linestyle,
                                color=_color,
                                marker=_marker,
-                            #    markevery=0.05,
+                               #    markevery=0.05,
                                label=my_case)
 
         if PLOT_F_MEAN_FLAME:
@@ -235,15 +237,15 @@ if __name__ == "__main__":
                 my_label_tot_hr = r"$\dot{\omega}_{\rm tot}$"
 
             ax_hr.plot(y_tip[:length], df_mmm.HR_lam_mean[:length], '-',
-                        color=_color,
-                        marker=_marker, 
-                        markevery=0.05,
-                        label=my_label_res_hr)
+                       color=_color,
+                       marker=_marker,
+                       markevery=0.05,
+                       label=my_label_res_hr)
             ax_hr.plot(y_tip[:length], df_mmm.HR_sgs_mean[:length], '-.',
-                        color=_color,
-                        marker=_marker, 
-                        markevery=0.05,
-                        label=my_label_sgs_hr)
+                       color=_color,
+                       marker=_marker,
+                       markevery=0.05,
+                       label=my_label_sgs_hr)
             # ax_hr.plot(y_tip, df_mmm.HR_mean, '--',
             #             color=_color,
             #             marker=_marker,
@@ -251,9 +253,9 @@ if __name__ == "__main__":
             #             label=my_label_tot_hr)
 
             ax_perc_hr.plot(y_tip[:length], df_mmm.percentage_res_HR[:length],
-                            color=_color, 
-                            marker=_marker, 
-                            markevery=0.05, 
+                            color=_color,
+                            marker=_marker,
+                            markevery=0.05,
                             label=my_case)
 
         if PLOT_FLAME_POSITION:
@@ -262,7 +264,7 @@ if __name__ == "__main__":
                 ax_flame_pos.plot(df.t, df.y_max,
                                   ls=linestyle,
                                   color=_color,
-                                  marker=_marker, 
+                                  marker=_marker,
                                   markevery=0.05,
                                   label=my_case)
             except KeyError:
@@ -270,7 +272,7 @@ if __name__ == "__main__":
                 ax_flame_pos.plot(df.t, df["Pos_y_max"],
                                   ls=linestyle,
                                   color=_color,
-                                  marker=_marker, 
+                                  marker=_marker,
                                   markevery=0.05,
                                   label=my_case)
 
@@ -284,6 +286,7 @@ if __name__ == "__main__":
         my_str = my_str.replace("__", "_")
         my_str = my_str.replace("__", "_")
         my_str = my_str.replace("$", "")
+        my_str = my_str.replace(r"\rm", "")
 
     print(my_str)
 
@@ -294,15 +297,11 @@ if __name__ == "__main__":
         # fig_overP.tight_layout()
 
         # Save overpressure figure
-        fig_overP.savefig("Figures/Figure_overP_.%s.pdf" % my_str,
-                          bbox_inches='tight',
-                          transparent=True,
-                          pad_inches=0.02)
-
-        fig_overP.savefig("Figures/Figure_overP_.%s.png" % my_str,
-                          bbox_inches='tight',
-                          transparent=False,
-                          pad_inches=0.02)
+        for _ext in EXT_LIST:
+            fig_overP.savefig("Figures/Figure_overP_.%s.%s" % (my_str, _ext),
+                              bbox_inches='tight',
+                              transparent=False,
+                              pad_inches=0.02)
 
     if PLOT_FLAME_SPEED:
         # Save flame
@@ -310,25 +309,28 @@ if __name__ == "__main__":
         ax_st_pos.legend(ncol=1)
         # ax_st_pos.set_xlim(left=0)
         # ax_st_pos.set_ylim(ymin=0)
-        fig_speed_vs_pos.savefig(r"Figures/Figure_FlameSpeed.%s.png" % my_str,
-                                 bbox_inches='tight',
-                                 pad_inches=0.02)
+        for _ext in EXT_LIST:
+            fig_speed_vs_pos.savefig(r"Figures/Figure_FlameSpeed.%s.%s" % (my_str, _ext),
+                                     bbox_inches='tight',
+                                     pad_inches=0.02)
 
     if PLOT_FLAME_POSITION:
         # ax_flame_pos.set_xlim(left=0)
         # ax_flame_pos.set_ylim(bottom=0)
         ax_flame_pos.legend()
-        fig_flame_pos.savefig("Figures/Figure_FlamePosition.%s.png" % my_str,
-                              bbox_inches='tight',
-                              pad_inches=0.02)
+        for _ext in EXT_LIST:
+            fig_flame_pos.savefig("Figures/Figure_FlamePosition.%s.%s" % (my_str, _ext),
+                                  bbox_inches='tight',
+                                  pad_inches=0.02)
 
     if PLOT_F_MEAN_FLAME:
         # ax_thick.set_xlim(left=0)
         # ax_thick.set_ylim(bottom=0)
         ax_thick.legend()
-        fig_thick.savefig("Figures/Figure_thickening_masked.%s.png" % my_str,
-                          bbox_inches='tight',
-                          pad_inches=0.02)
+        for _ext in EXT_LIST:
+            fig_thick.savefig("Figures/Figure_thickening_masked.%s.%s" % (my_str, _ext),
+                              bbox_inches='tight',
+                              pad_inches=0.02)
 
     if PLOT_RESOLVED_HR:
         # ax_hr.set_ylim(bottom=0)
@@ -336,9 +338,8 @@ if __name__ == "__main__":
         ax_perc_hr.legend()
         # ax_perc_hr.set_ylim(top=100, bottom=40)
         # ax_perc_hr.set_xlim(left=0, right=25)
-        ext_list = ['png', 'pdf']
         for ext in ext_list:
-            fig_res_hr.savefig("Figures/Figure_ResolverHR.%s.%s" % (my_str, ext),
+            fig_res_hr.savefig("Figures/Figure_ResolvedHR.%s.%s" % (my_str, ext),
                                bbox_inches='tight',
                                pad_inches=0.02)
 

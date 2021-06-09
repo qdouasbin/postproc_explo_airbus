@@ -83,10 +83,10 @@ def postproc_mmm(file, df):
             'Found Omar simulation, using Pos_y_max to compute velocity')
         col = 'Pos_y_max'
         dummy = df.describe().T
-        dy = np.gradient(df[col].rolling(WINDOW_SIZE, center=True).mean())
-        dx = np.gradient(df["t"].rolling(WINDOW_SIZE, center=True).mean())
+        dy = np.gradient(df[col].rolling(WINDOW_SIZE, left=True).mean())
+        dx = np.gradient(df["t"].rolling(WINDOW_SIZE, left=True).mean())
         df['%s_rolling' % col] = df[col].rolling(
-            WINDOW_SIZE, center=True).mean()
+            WINDOW_SIZE, center=left).mean()
         df['%s_speed' % col] = dy/dx
 
     return df
