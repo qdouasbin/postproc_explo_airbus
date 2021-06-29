@@ -20,14 +20,14 @@ OUTPUT_HDF = 1
 OUTPT_CSV = 0
 
 matplotlib.use('Qt5Agg')
-plt.style.use("~/cerfacs.mplstyle")
-plt.rcParams['axes.grid'] = False
+# plt.style.use("~/cerfacs.mplstyle")
+#plt.rcParams['axes.grid'] = False
 
 logging.basicConfig(
     # filename='myfirstlog.log',
     level=logging.INFO,
     # level=logging.DEBUG,
-    format='\n > %(asctime)s | %(name)s | %(levelname)s \n > %(message)s',
+    format='> %(asctime)s | %(name)s | %(levelname)s | > %(message)s',
     datefmt='%Y-%m-%d %H:%M:%S')
 
 logger = logging.getLogger(__name__)
@@ -62,13 +62,17 @@ def postproc_probe(file, df):
 
 def postproc_mmm(file, df):
     logger.info("Postproc avbp_mmm: %s" % file)
-    logger.info(df.columns.values)
+    # logger.info(df.columns.values)
+    for col in df.columns.values:
+        if 'Pos' in col:
+            print(col)
+    print("alors ?")
 
     # HR tot, lam, sgs and percentage
-    if 'thickening_mean' in df.columns.values:
+    if 'HR_lam_mean' in df.columns.values:
         logger.info('thickening_mean found')
-        df['HR_mean'] *= FACTOR_HR_2D_TO_3D
-        df['HR_lam_mean'] *= FACTOR_HR_2D_TO_3D
+        # df['HR_mean'] *= FACTOR_HR_2D_TO_3D
+        # df['HR_lam_mean'] *= FACTOR_HR_2D_TO_3D
         df['HR_sgs_mean'] = df['HR_mean'] - df['HR_lam_mean']
     else:
         logger.info('thickening_mean NOT found')
@@ -78,15 +82,30 @@ def postproc_mmm(file, df):
     df['percentage_res_HR'] = 100.0 * df['HR_lam_mean'] / df['HR_mean']
 
     # flame position and speed in Omar's simulations
+    if 'Pos_max' in df.columns.values:
+        logger.info(
+            'Found Omar simulation, using Pos_yxmax to compute velocity')
+        col = 'Pos_max'
+        dummy = df.describe().T
+        dy = np.gradient(df[col].rolling(WINDOW_SIZE, center=True).mean())
+        dx = np.gradient(df["t"].rolling(WINDOW_SIZE, center=True).mean())
+        df['%s_rolling' % col] = df[col].rolling(
+            WINDOW_SIZE, center=True).mean()
+        df['%s_speed' % col] = dy/dx
+
     if 'Pos_y_max' in df.columns.values:
         logger.info(
             'Found Omar simulation, using Pos_y_max to compute velocity')
+        for col in df.columns.values:
+            if 'os' in col:
+                if 'max' in col:
+                    print(col)
         col = 'Pos_y_max'
         dummy = df.describe().T
-        dy = np.gradient(df[col].rolling(WINDOW_SIZE, left=True).mean())
-        dx = np.gradient(df["t"].rolling(WINDOW_SIZE, left=True).mean())
+        dy = np.gradient(df[col].rolling(WINDOW_SIZE, center=True).mean())
+        dx = np.gradient(df["t"].rolling(WINDOW_SIZE, center=True).mean())
         df['%s_rolling' % col] = df[col].rolling(
-            WINDOW_SIZE, center=left).mean()
+            WINDOW_SIZE, center=True).mean()
         df['%s_speed' % col] = dy/dx
 
     return df
@@ -103,8 +122,15 @@ def postproc_track_condition(file, df):
         dummy = df.describe().T
         dy = np.gradient(df[col].rolling(WINDOW_SIZE, center=True).mean())
         dx = np.gradient(df["t"].rolling(WINDOW_SIZE, center=True).mean())
-        df['%s_rolling' % col] = df[col].rolling(WINDOW_SIZE, center=True).mean()
+        df['%s_rolling' % col] = df[col].rolling(
+            WINDOW_SIZE, center=True).mean()
         df['%s_speed' % col] = dy/dx
+
+    # plt.title(file)
+    # plt.plot(df['y_max'], np.gradient(df['y_max'], df['t']), label='unfiltered')
+    # plt.plot(df['y_max'], df['%s_speed' % 'y_max'], label='filtered')
+    # plt.legend()
+    # plt.show()
         # dy = np.gradient(savgol_filter(df[col], WINDOW_SIZE, order))
         # dx = np.gradient(savgol_filter(df["t"], WINDOW_SIZE, order))
         # df['%s_speed_savgol' % col] = dy/dx
