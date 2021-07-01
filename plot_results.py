@@ -40,6 +40,36 @@ SL0_REF = 0.4893081637390764  # m/s
 X_MAX = 0.54
 Y_MAX = 1.0
 
+# # Choosing cases to plot and the legend {name: dir}
+# CASE_DIR = {
+#     r"2D DNS, $\rm Le = 1$": "2D_DNS_Le1",
+#     r"10 cells": "2p5D_10CellsAcross",
+#     r"15 cells": "2p5D_15CellsAcross",
+#     r"20 cells, $R_0 = 7$ mm": "2p5D_20CellsAcross",
+#     r"20 cells, $R_0 = 14$ mm": "2p5D_20CellsAcross_R014mm",
+#     # r"20 cells, $R_0 = 14$ mm, PGS (0.09)": "2p5D_20CellsAcross_R014mm_PGS",
+#     r"40 cells": "2p5D_40CellsAcross",
+# }
+
+
+# Choosing cases to plot and the legend {name: dir}
+CASE_DIR = {
+    r"2D DNS, $\rm Le = 1$": "2D_DNS_Le1",
+    # r"2D LES, $\rm Le = 1$, 20 cells": "2D_LES_Le1",
+    # r"2D LES, $\rm Le = 1$, 25 cells": "2D_LES_Le1_25CellsAcross",
+    # r"2D LES, $\rm Le = 1$, 20 cells, efcy += 1.5": "2D_LES_Le1_FakeEfcy1p5",
+    # r"2D LES, $\rm Le = 1$, 20 cells, no wall damping": "2D_LES_Le1_noWallDamping",
+    # r"2D LES, $\rm Le = 1$, 20 cells, efcy += 1.5, $\beta=0.5$": "2D_LES_Le1_FakeEfcy1p5_beta0p5",
+    # r"2D LES, $\rm Le = 1$, 20 cells, wall law (noslip)": "2D_LES_Le1_WallLaw",
+    # r"2D LES, $\rm Le = 1$, 20 cells, wall law (slip)": "2D_LES_Le1_WallLawNormal",
+    # r"2D LES, $\rm Le = 1$, TTGC, ": "2D_LES_Le1_TTGC",
+    r"2D LES, $\rm Le = 1$, 20 cells, WL, NWD, $\beta=0.4$": "2D_LES_Le1_WallLawNoWallDampingBeta0p4",
+    r"2D LES, $\rm Le = 1$, 20 cells, WL, NWD, $\beta=0.4$, PGS": "2D_LES_Le1_WallLawNoWallDampingBeta0p4_PGS",
+    # r"2D LES, $\rm Le = 1$, 20 cells, WL, NWD, $\beta=0.5$": "2D_LES_Le1_WallLawNoWallDampingBeta0p5",
+}
+
+logging.info("Plotting data:")
+logging.info(CASE_DIR)
 
 def get_fft(df, var, sig_length=512):
     def get_welch(sig, sampling_freq, sig_length=sig_length):
@@ -56,29 +86,6 @@ def get_fft(df, var, sig_length=512):
     sig = df[var] - df[var].mean()
     freq_welch, spectrum_rms = get_welch(sig, sampling_freq)
     return freq_welch, spectrum_rms
-
-# # Choosing cases to plot and the legend {name: dir}
-# CASE_DIR = {
-#     r"2D DNS, $\rm Le = 1$": "2D_DNS_Le1",
-#     r"10 cells": "2p5D_10CellsAcross",
-#     r"15 cells": "2p5D_15CellsAcross",
-#     r"20 cells, $R_0 = 7$ mm": "2p5D_20CellsAcross",
-#     r"20 cells, $R_0 = 14$ mm": "2p5D_20CellsAcross_R014mm",
-#     # r"20 cells, $R_0 = 14$ mm, PGS (0.09)": "2p5D_20CellsAcross_R014mm_PGS",
-#     r"40 cells": "2p5D_40CellsAcross",
-# }
-
-
-# Choosing cases to plot and the legend {name: dir}
-CASE_DIR = {
-    r"2D DNS, $\rm Le = 1$": "2D_DNS_Le1",
-    r"2D LES, $\rm Le = 1$, 20 cells": "2D_LES_Le1",
-    r"2D LES, $\rm Le = 1$, 25 cells": "2D_LES_Le1_25CellsAcross",
-    # r"2D LES, $\rm Le = 1$, TTGC, ": "2D_LES_Le1_TTGC",
-}
-
-logging.info("Plotting data:")
-logging.info(CASE_DIR)
 
 if __name__ == "__main__":
 
@@ -245,10 +252,11 @@ if __name__ == "__main__":
         if PLOT_OVERPRESSURE:
             df = data[my_case]["probe3"]
             ax_overp.plot(df['t'], df.overpressure_mbar,
-                          ls=_ls,
+                          ls='-',
                           color=_color,
                           marker=_marker,
                           markevery=0.05,
+                          alpha=0.7,
                           label=my_case)
             # ax_overp.plot(df_mmm['t'], 1e-2 * (df_mmm.P_max - 101325),
             #               ls=_ls,
@@ -259,17 +267,19 @@ if __name__ == "__main__":
             #               label='%s (max)' % my_case)
 
             length = min(len(y_tip), len(df.overpressure_mbar))
-            ax_overp_x.plot(x_tip[:length], np.abs(df.overpressure_mbar[:length]),
-                            ls=_ls,
+            ax_overp_x.plot(x_tip[:length], (df.overpressure_mbar[:length]),
+                            ls='-',
                             color=_color,
                             marker=_marker,
                             markevery=0.05,
+                            alpha=0.7,
                             label=my_case)
-            ax_overp_y.plot(y_tip[:length], np.abs(df.overpressure_mbar[:length]),
-                            ls=_ls,
+            ax_overp_y.plot(y_tip[:length], (df.overpressure_mbar[:length]),
+                            ls='-',
                             color=_color,
                             marker=_marker,
                             markevery=0.05,
+                            alpha=0.7,
                             label=my_case)
 
         if PLOT_FLAME_SPEED:
